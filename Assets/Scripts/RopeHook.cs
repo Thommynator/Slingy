@@ -10,6 +10,11 @@ public class RopeHook : MonoBehaviour
     [SerializeField] private LayerMask ropeBlockingLayer;
     [SerializeField] private LayerMask hookableLayer;
 
+    [Header("Sounds")]
+    private AudioSource audioSource;
+    [SerializeField] private AudioClip shootAudioClip;
+    [SerializeField] private AudioClip hookAttachedAudioClip;
+
     [Header("State")]
     [SerializeField] private bool isHooked;
     [SerializeField] private bool isShooting;
@@ -25,6 +30,8 @@ public class RopeHook : MonoBehaviour
         isHooked = false;
         rope = GetComponent<SpringJoint2D>();
         lineRenderer = GetComponent<LineRenderer>();
+        audioSource = GetComponent<AudioSource>();
+
     }
 
     void Update()
@@ -46,6 +53,7 @@ public class RopeHook : MonoBehaviour
 
         BreakHook();
         isShooting = true;
+        PlayShootSound();
 
         Vector2 direction = Quaternion.AngleAxis(aimAngle, Vector3.back) * Vector2.up;
         RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, ropeMaxLength, ropeBlockingLayer);
@@ -59,6 +67,7 @@ public class RopeHook : MonoBehaviour
                 rope.connectedAnchor = new Vector3(hit.point.x, hit.point.y) - hit.transform.position;
                 rope.distance = Vector2.Distance(transform.position, GetHookPosition());
                 isHooked = true;
+                PlayHookAttachedSound();
             }
             // hit a ropeBlocking layer, which is not hookable
             else
@@ -72,9 +81,7 @@ public class RopeHook : MonoBehaviour
             Vector2 endOfRope = transform.position + Quaternion.AngleAxis(aimAngle, Vector3.back) * Vector2.up * ropeMaxLength;
             StartCoroutine(ShowMissedShot(endOfRope, 0.2f));
         }
-
         isShooting = false;
-
     }
 
     private IEnumerator ShowMissedShot(Vector2 targetPosition, float duration)
@@ -107,6 +114,18 @@ public class RopeHook : MonoBehaviour
     public void ControlRope(float distanceChange)
     {
         rope.distance = Mathf.Clamp(rope.distance - distanceChange * ropeSpeed, ropeMinLength, ropeMaxLength);
+    }
+
+    private void PlayShootSound()
+    {
+        audioSource.clip = shootAudioClip;
+        audioSource.Play();
+    }
+
+    private void PlayHookAttachedSound()
+    {
+        audioSource.clip = hookAttachedAudioClip;
+        audioSource.Play();
     }
 
 }

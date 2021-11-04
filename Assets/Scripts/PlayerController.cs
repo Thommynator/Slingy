@@ -8,6 +8,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameObject crosshair;
     [SerializeField] private float aimAngle;
     private RopeHook ropeHook;
+    private AudioSource audioSource;
+
+    [Header("Sounds")]
+    [SerializeField] private List<AudioClip> jumpAudioClips;
 
 
     [Header("Player")]
@@ -21,6 +25,7 @@ public class PlayerController : MonoBehaviour
     {
         body = GetComponent<Rigidbody2D>();
         ropeHook = GetComponent<RopeHook>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     void Update()
@@ -31,6 +36,7 @@ public class PlayerController : MonoBehaviour
         {
             if (ropeHook.IsHooked())
             {
+                PlayRandomJumpSound();
                 ropeHook.BreakHook();
             }
             else
@@ -39,6 +45,7 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+
 
     void FixedUpdate()
     {
@@ -70,7 +77,10 @@ public class PlayerController : MonoBehaviour
         Destroy(this.gameObject);
     }
 
-
-
+    private void PlayRandomJumpSound()
+    {
+        audioSource.clip = jumpAudioClips[Random.Range(0, jumpAudioClips.Count)];
+        audioSource.Play();
+    }
 
 }
