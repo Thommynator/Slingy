@@ -8,10 +8,13 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameObject crosshair;
     [SerializeField] private float aimAngle;
     private RopeHook ropeHook;
-    private AudioSource audioSource;
 
     [Header("Sounds")]
+    private AudioSource audioSource;
+    private AudioSource explosionSoundSource;
     [SerializeField] private List<AudioClip> jumpAudioClips;
+    [SerializeField] private List<AudioClip> bounceAudioClips;
+    [SerializeField] private List<AudioClip> explosionAudioClips;
 
 
     [Header("Player")]
@@ -26,6 +29,7 @@ public class PlayerController : MonoBehaviour
         body = GetComponent<Rigidbody2D>();
         ropeHook = GetComponent<RopeHook>();
         audioSource = GetComponent<AudioSource>();
+        explosionSoundSource = transform.Find("ExplosionSoundObject").GetComponent<AudioSource>();
     }
 
     void Update()
@@ -74,6 +78,9 @@ public class PlayerController : MonoBehaviour
     public void Die()
     {
         GameObject.Instantiate(bloodExplosionParticlesPrefab, transform.position, Quaternion.identity);
+        explosionSoundSource.gameObject.transform.parent = null;
+        PlayRandomExplosionSound();
+        Destroy(explosionSoundSource.gameObject, 5);
         Destroy(this.gameObject);
     }
 
@@ -81,6 +88,23 @@ public class PlayerController : MonoBehaviour
     {
         audioSource.clip = jumpAudioClips[Random.Range(0, jumpAudioClips.Count)];
         audioSource.Play();
+    }
+
+    private void PlayRandomBounceSound()
+    {
+        audioSource.clip = bounceAudioClips[Random.Range(0, bounceAudioClips.Count)];
+        audioSource.Play();
+    }
+
+    private void PlayRandomExplosionSound()
+    {
+        explosionSoundSource.clip = explosionAudioClips[Random.Range(0, explosionAudioClips.Count)];
+        explosionSoundSource.Play();
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        PlayRandomBounceSound();
     }
 
 }
