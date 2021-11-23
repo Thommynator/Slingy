@@ -12,7 +12,6 @@ public class Collector : MonoBehaviour
     private int collectedNumber;
 
 
-
     void Start()
     {
         collectedNumber = 0;
@@ -33,6 +32,7 @@ public class Collector : MonoBehaviour
     {
         collectedNumber++;
         UpdateScore(collectedNumber, collectableObjects.Count);
+        GameManager.current.CanFinishLevel(collectedNumber == collectableObjects.Count);
     }
 
     private void UpdateScore(int collectedNumber, int totalNumber)

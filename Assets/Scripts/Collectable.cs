@@ -5,13 +5,12 @@ using UnityEngine;
 
 public class Collectable : MonoBehaviour
 {
-
     [SerializeField] private Color startColor;
     [SerializeField] private Color collectedColor;
     private SpriteRenderer spriteRenderer;
     private AudioSource audioSource;
-
     private bool isCollected;
+
 
 
     void Start()
@@ -20,6 +19,8 @@ public class Collectable : MonoBehaviour
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         spriteRenderer.color = startColor;
         audioSource = GetComponent<AudioSource>();
+        LeanTween.scale(this.gameObject, Vector3.one * 1.4f, 1).setLoopPingPong();
+        LeanTween.rotateZ(this.gameObject, 5, 2).setFrom(-5).setLoopPingPong();
     }
 
     private void ChangeColor()
@@ -46,6 +47,8 @@ public class Collectable : MonoBehaviour
         if (!isCollected)
         {
             isCollected = true;
+            LeanTween.cancel(this.gameObject);
+            LeanTween.scale(this.gameObject, Vector3.one, 1);
             ChangeColor();
             PlaySound();
             InformCollector();

@@ -19,6 +19,9 @@ public class Deadly : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-        GameManager.current.Respawn();
+        if (collision.gameObject.tag == "Player")
+        {
+            GameManager.current.Respawn();
+        }
     }
 }
