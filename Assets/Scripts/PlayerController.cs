@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
 
+    [SerializeField] private Transform spawnPosition;
     [SerializeField] private GameObject crosshair;
     [SerializeField] private float aimAngle;
     private RopeHook ropeHook;
@@ -22,31 +23,49 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float maxRotationForce;
     [SerializeField] private float aimRotationSpeed;
     [SerializeField] private GameObject bloodExplosionParticlesPrefab;
+    float changeRopeDuration;
+    private Animator animator;
+    private bool canShoot;
+
 
 
     void Start()
     {
+        transform.position = spawnPosition.position;
         body = GetComponent<Rigidbody2D>();
         ropeHook = GetComponent<RopeHook>();
         audioSource = GetComponent<AudioSource>();
         explosionSoundSource = transform.Find("ExplosionSoundObject").GetComponent<AudioSource>();
+        animator = GetComponentInChildren<Animator>();
+        canShoot = true;
     }
 
     void Update()
     {
         crosshair.transform.rotation = Quaternion.AngleAxis(aimAngle, Vector3.back);
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && canShoot)
         {
             if (ropeHook.IsHooked())
             {
+                animator.SetTrigger("JumpRoll");
                 PlayRandomJumpSound();
-                ropeHook.BreakHook();
+                StartCoroutine(ropeHook.RecallHook());
             }
             else
             {
-                ropeHook.ShootHook(aimAngle);
+                ropeHook.TriggerHookShot(aimAngle);
             }
+        }
+
+        animator.SetFloat("VerticalSpeed", body.velocity.y);
+        if (body.velocity.x >= 1f)
+        {
+            transform.Find("Sprite").localScale = new Vector3(1, 1, 1);
+        }
+        else if (body.velocity.x <= -1f)
+        {
+            transform.Find("Sprite").localScale = new Vector3(-1, 1, 1);
         }
     }
 
@@ -59,11 +78,27 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            SwingBodyAtRope();
-            ropeHook.ControlRope(Input.GetAxis("Vertical"));
+            if (Input.GetAxis("Horizontal") != 0)
+            {
+                SwingBodyAtRope();
+            }
+
+            if (Input.GetKey(KeyCode.S))
+            {
+                ropeHook.ControlRope(RopeHook.LengthChange.SHORTEN, changeRopeDuration);
+                changeRopeDuration += Time.deltaTime;
+            }
+            else if (Input.GetKey(KeyCode.W))
+            {
+                ropeHook.ControlRope(RopeHook.LengthChange.EXTEND, changeRopeDuration);
+                changeRopeDuration += Time.deltaTime;
+            }
+            else
+            {
+                changeRopeDuration = 0;
+            }
         }
     }
-
 
     private void Aim()
     {
@@ -75,13 +110,21 @@ public class PlayerController : MonoBehaviour
         body.AddForce(Vector2.right * Input.GetAxis("Horizontal") * maxRotationForce);
     }
 
+    public void Respawn()
+    {
+        canShoot = false;
+        animator.SetTrigger("Die");
+    }
+
     public void Die()
     {
         GameObject.Instantiate(bloodExplosionParticlesPrefab, transform.position, Quaternion.identity);
-        explosionSoundSource.gameObject.transform.parent = null;
         PlayRandomExplosionSound();
-        Destroy(explosionSoundSource.gameObject, 5);
-        Destroy(this.gameObject);
+        LeanTween.scale(transform.Find("Sprite").gameObject, Vector3.zero, 0.5f).setOnComplete(() =>
+        {
+            transform.position = spawnPosition.position;
+            LeanTween.scale(transform.Find("Sprite").gameObject, Vector3.one, 0.3f).setOnComplete(() => canShoot = true);
+        });
     }
 
     private void PlayRandomJumpSound()

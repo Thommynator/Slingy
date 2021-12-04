@@ -1,41 +1,40 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Collectable : MonoBehaviour
 {
-    [SerializeField] private Color startColor;
-    [SerializeField] private Color collectedColor;
+    [SerializeField] private List<AudioClip> eatingAudioClips;
     private SpriteRenderer spriteRenderer;
     private AudioSource audioSource;
     private bool isCollected;
-
-
+    private Collector collector;
+    private PathFollower pathFollower;
 
     void Start()
     {
         isCollected = false;
-        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-        spriteRenderer.color = startColor;
         audioSource = GetComponent<AudioSource>();
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         LeanTween.scale(this.gameObject, Vector3.one * 1.4f, 1).setLoopPingPong();
         LeanTween.rotateZ(this.gameObject, 5, 2).setFrom(-5).setLoopPingPong();
+        collector = GameObject.Find("Collector").GetComponent<Collector>();
+        pathFollower = GetComponent<PathFollower>();
     }
 
-    private void ChangeColor()
+    public void SetPosition(Vector3 position)
     {
-        spriteRenderer.color = collectedColor;
+        pathFollower.enabled = false;
+        transform.position = position;
     }
 
-    private void PlaySound()
+    private void PlayEatSound()
     {
+        audioSource.clip = eatingAudioClips[Random.Range(0, eatingAudioClips.Count)];
         audioSource.Play();
     }
 
     private void InformCollector()
     {
-        transform.parent.parent.TryGetComponent<Collector>(out Collector collector);
         if (collector != null)
         {
             collector.Collect();
@@ -44,14 +43,16 @@ public class Collectable : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collider)
     {
-        if (!isCollected)
+        if (!isCollected && collider.gameObject.tag == "Player")
         {
             isCollected = true;
             LeanTween.cancel(this.gameObject);
             LeanTween.scale(this.gameObject, Vector3.one, 1);
-            ChangeColor();
-            PlaySound();
+            spriteRenderer.enabled = false;
+            GetComponent<PolygonCollider2D>().enabled = false;
+            PlayEatSound();
             InformCollector();
+            Destroy(this.transform.parent.gameObject, 0.5f);
         }
     }
 

@@ -37,9 +37,7 @@ public class GameManager : MonoBehaviour
 
     public void Respawn()
     {
-        GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>().Die();
-        player = GameObject.Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
-        cinemachine.GetComponent<CinemachineVirtualCamera>().Follow = player.transform;
+        GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>().Respawn();
     }
 
     public void NextLevel()
