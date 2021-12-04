@@ -25,7 +25,10 @@ public class Collector : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if (collectedNumber == collectableObjects.Count)
+        {
+            GameManager.current.NextLevel();
+        }
     }
 
     public void Collect()

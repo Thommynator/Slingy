@@ -155,6 +155,13 @@ public class RopeHook : MonoBehaviour
         lineRenderer.enabled = false;
     }
 
+    public void ResetHook()
+    {
+        isShooting = false;
+        lineRenderer.enabled = false;
+        DetachFromAnchor();
+    }
+
     public bool IsHooked()
     {
         return isHooked;
@@ -166,7 +173,7 @@ public class RopeHook : MonoBehaviour
     }
 
 
-    public void DetachFromAnchor()
+    private void DetachFromAnchor()
     {
         ropeSpring.connectedBody = null;
         ropeSpring.enabled = false;

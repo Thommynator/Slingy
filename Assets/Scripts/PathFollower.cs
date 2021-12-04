@@ -5,14 +5,17 @@ public class PathFollower : MonoBehaviour
 {
 
     [SerializeField] private PathCreator pathCreator;
-
-    private float speed;
+    [SerializeField] private float speed;
+    [SerializeField] private bool randomSpeed;
 
     private float traveledDistance;
 
     void Start()
     {
-        speed = Random.Range(-2.0f, 2.0f);
+        if (randomSpeed)
+        {
+            speed = Random.Range(-2.0f, 2.0f);
+        }
         traveledDistance = Random.Range(0, 10);
     }
     void Update()

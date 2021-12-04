@@ -74,7 +74,7 @@ MonoBehaviour:
       - 0
       globalNormalsAngle: 0
       flipNormals: 0
-    vertexPathUpToDate: 0
+    vertexPathUpToDate: 1
     vertexPathMaxAngleError: 0.3
     vertexPathMinVertexSpacing: 0.01
     showTransformTool: 1
@@ -222,7 +222,7 @@ MonoBehaviour:
   - {x: 1.2309895, y: -3.2023182, z: 0}
   m_ShapePathHash: 1110803657
   m_Mesh: {fileID: 0}
-  m_InstanceId: 60382
+  m_InstanceId: 107762
 --- !u!1 &7981749314209932759
 GameObject:
   m_ObjectHideFlags: 0
@@ -453,3 +453,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pathCreator: {fileID: 1365416662873451949}
+  speed: 0
+  randomSpeed: 1

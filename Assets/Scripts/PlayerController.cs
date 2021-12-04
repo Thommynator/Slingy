@@ -113,6 +113,7 @@ public class PlayerController : MonoBehaviour
     public void Respawn()
     {
         canShoot = false;
+        ropeHook.ResetHook();
         animator.SetTrigger("Die");
     }
 
